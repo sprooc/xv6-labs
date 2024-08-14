@@ -1,0 +1,16 @@
+{
+  "C_Cpp.default.includePath": [
+    "/home/sprooc/xv6-labs-2021"
+  ],
+  "files.associations": {
+    "user.h": "c",
+    "stat.h": "c",
+    "types.h": "c",
+    "memlayout.h": "c",
+    "riscv.h": "c",
+    "defs.h": "c"
+  },
+  "gotoSymbolStack.currentStackPosition": 0,
+  "gotoSymbolStack.maxStackPosition": 0,
+  "gotoSymbolStack.filePositionInfo": []
+}
