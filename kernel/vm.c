@@ -350,7 +350,13 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
 
   while(len > 0){
     va0 = PGROUNDDOWN(dstva);
+    if (va0 >= MAXVA) {
+      return -1;
+    }
     pte_t* pte = walk(pagetable, va0, 0);
+    if (pte == 0) {
+      return -1;
+    }
     if (*pte & PTE_W) {
       pa0 = PTE2PA(*pte);
     } else {
@@ -441,7 +447,9 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
 
 uint64
 cow_handler(pagetable_t pagetable, uint64 va)
-{   
+{   if (va >= MAXVA) {
+        goto bad;
+    }
     pte_t* pte = walk(pagetable, va, 0);
     if (pte == 0) {
         goto bad;
