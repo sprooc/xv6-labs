@@ -65,6 +65,10 @@ usertrap(void)
     intr_on();
 
     syscall();
+  } else if (r_scause() == 0xf) {
+    if (page_fault_handler() < 0) {
+      p->killed = 1;
+    }
   } else if((which_dev = devintr()) != 0){
     // ok
   } else {

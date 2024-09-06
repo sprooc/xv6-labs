@@ -654,3 +654,14 @@ procdump(void)
     printf("\n");
   }
 }
+
+int
+page_fault_handler()
+{
+
+    struct proc* p = myproc();
+    pagetable_t pagetable = p->pagetable;
+    uint64 stval = PGROUNDDOWN(r_stval());
+
+    return cow_handler(pagetable, stval) == 0 ? -1 : 0;
+}
