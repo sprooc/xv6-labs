@@ -99,10 +99,10 @@ bget(uint dev, uint blockno)
   }
   if(mb){
       struct spinlock *prelock = &bcache.lock[mb->blockno % NBUCKET];
-      mb->dev = dev;
+      mb->dev = 0x7fffffff;
       mb->blockno = blockno;
       mb->valid = 0;
-      mb->refcnt = 1;
+      mb->refcnt = 0;
       mb->next->prev = mb->prev;
       mb->prev->next = mb->next;
       release(prelock);
@@ -112,6 +112,16 @@ bget(uint dev, uint blockno)
       mb->prev = &bcache.head[mb->blockno % NBUCKET];
       bcache.head[mb->blockno % NBUCKET].next->prev = mb;
       bcache.head[mb->blockno % NBUCKET].next = mb;
+      for(b = bcache.head[bno].next; b != &bcache.head[bno]; b = b->next){
+        if(b->dev == dev && b->blockno == blockno){
+          b->refcnt++;
+          release(&bcache.lock[bno]);
+          acquiresleep(&b->lock);
+          return b;
+        }
+      }
+      mb->dev = dev;
+      mb->refcnt = 1;
       release(newlock);
       acquiresleep(&mb->lock);
       return mb;
