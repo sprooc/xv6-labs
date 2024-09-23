@@ -17,6 +17,7 @@ struct spinlock pid_lock;
 
 extern void forkret(void);
 static void freeproc(struct proc *p);
+uint64 munmap(uint64 addr, uint64 len);
 
 extern char trampoline[]; // trampoline.S
 
@@ -301,6 +302,18 @@ fork(void)
       np->ofile[i] = filedup(p->ofile[i]);
   np->cwd = idup(p->cwd);
 
+  for(i = 0; i < NVMA; i++){
+    if(p->vma[i].start != 0){
+      np->vma[i].start = p->vma[i].start;
+      np->vma[i].end = p->vma[i].end;
+      np->vma[i].prot = p->vma[i].prot;
+      np->vma[i].flags = p->vma[i].flags;
+      np->vma[i].offset = p->vma[i].offset;
+      np->vma[i].file = p->vma[i].file;
+      filedup(np->vma[i].file);
+    }
+  }
+
   safestrcpy(np->name, p->name, sizeof(p->name));
 
   pid = np->pid;
@@ -350,6 +363,13 @@ exit(int status)
       struct file *f = p->ofile[fd];
       fileclose(f);
       p->ofile[fd] = 0;
+    }
+  }
+
+  for(int i = 0; i < NVMA; i++){
+    if (p->vma[i].start != 0)
+    {
+      munmap(p->vma[i].start, p->vma[i].end - p->vma[i].start);
     }
   }
 

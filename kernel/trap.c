@@ -8,7 +8,7 @@
 
 struct spinlock tickslock;
 uint ticks;
-
+int pgfaulthandler(void);
 extern char trampoline[], uservec[], userret[];
 
 // in kernelvec.S, calls kerneltrap().
@@ -66,6 +66,8 @@ usertrap(void)
 
     syscall();
   } else if((which_dev = devintr()) != 0){
+    // ok
+  } else if(r_scause() == 0xd && pgfaulthandler() == 0){
     // ok
   } else {
     printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
